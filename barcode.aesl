@@ -1,0 +1,62 @@
+<!DOCTYPE aesl-source>
+<network>
+
+
+<!--list of global events-->
+<event size="2" name="data"/>
+<event size="2" name="motors"/>
+<constant name="S_WAIT_SYNC" value="0"/>
+
+
+<!--node Thymio-II Wireless-->
+<node name="Thymio-II Wireless" nodeId="{4909ae0c-b7db-46ea-8a91-80312fe83620}"><![CDATA[### VARIABLES DECLARATION ###
+var running = 0
+var counter = 0
+var state
+var intensityDiff
+var code
+
+### EVENT BUTTON FORWARD ###
+onevent button.forward
+# starts line tracking and waits for sync bit
+if button.forward == 1 then
+	running = 1
+	state = S_WAIT_SYNC
+end
+
+### EVENT BUTTON CENTER ###
+onevent button.center
+#stops running and motors, turns LEDs off
+if  button.center == 1 then
+	running = 0
+	motor.left.target = 0
+	motor.right.target = 0
+end
+
+### EVENT PROXIMITY SENSORS (EVERY 100 ms => 10 Hz)###
+onevent prox
+#if the robot is running, steering and bar code reading are activated
+#we use the prox.ground.delta[1] to steer, the ...[0] to check the bar code
+	
+	if running == 1 then
+	
+	### STEERING PART ###
+	intensityDiff = prox.ground.delta[0]-525
+	#speed of robot is adjusted to keep around a gray mean value. If 
+	#difference is too important, the robot spins until it finds the line
+	#again. The steering is controled by the gray gradient of the trail.
+	if abs(intensityDiff) < 170 then
+		motor.left.target = 115+intensityDiff/8
+		motor.right.target = 115-intensityDiff/8
+	else
+		motor.left.target = intensityDiff/4
+		motor.right.target = -intensityDiff/4
+#edit to stop colours if line is lost
+		state = S_WAIT_SYNC
+	end
+
+	
+end]]></node>
+
+
+</network>
