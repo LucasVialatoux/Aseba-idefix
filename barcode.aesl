@@ -5,11 +5,19 @@
 <!--list of global events-->
 <event size="2" name="data"/>
 <event size="2" name="motors"/>
-<constant name="S_WAIT_SYNC" value="0"/>
 
 
-<!--node Thymio-II Wireless-->
-<node name="Thymio-II Wireless" nodeId="{4909ae0c-b7db-46ea-8a91-80312fe83620}"><![CDATA[### VARIABLES DECLARATION ###
+<!--list of constants-->
+<constant value="0" name="S_WAIT_SYNC"/>
+
+
+<!--show keywords state-->
+<keywords flag="true"/>
+
+
+<!--node thymio-II-->
+<node nodeId="1" name="thymio-II">
+### VARIABLES DECLARATION ###
 var running = 0
 var counter = 0
 var state
@@ -45,7 +53,7 @@ onevent prox
 	#speed of robot is adjusted to keep around a gray mean value. If 
 	#difference is too important, the robot spins until it finds the line
 	#again. The steering is controled by the gray gradient of the trail.
-	if abs(intensityDiff) < 170 then
+	if abs(intensityDiff) &lt; 170 then
 		motor.left.target = 115+intensityDiff/8
 		motor.right.target = 115-intensityDiff/8
 	else
@@ -56,7 +64,5 @@ onevent prox
 	end
 
 	
-end]]></node>
-
-
+end</node>
 </network>
