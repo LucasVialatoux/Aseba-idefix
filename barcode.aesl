@@ -3,26 +3,23 @@
 
 
 <!--list of global events-->
-<event size="2" name="data"/>
-<event size="2" name="motors"/>
+<event name="data" size="2"/>
+<event name="motors" size="2"/>
+<constant name="S_WAIT_SYNC" value="0"/>
 
 
-<!--list of constants-->
-<constant value="0" name="S_WAIT_SYNC"/>
-
-
-<!--show keywords state-->
-<keywords flag="true"/>
-
-
-<!--node thymio-II-->
-<node nodeId="1" name="thymio-II">
+<!--node Tim sur DESKTOP-MOS07AQ - 9612-->
+<node nodeId="{26c7dbb6-9a56-45ee-b857-ad0d194b756b}" name="Tim sur DESKTOP-MOS07AQ - 9612"><![CDATA[
 ### VARIABLES DECLARATION ###
 var running = 0
 var counter = 0
 var state
 var intensityDiff
-var code
+var code[] = [0,0,0,0]
+var slow = 11
+
+var capLeft
+var capRight
 
 ### EVENT BUTTON FORWARD ###
 onevent button.forward
@@ -45,24 +42,34 @@ end
 onevent prox
 #if the robot is running, steering and bar code reading are activated
 #we use the prox.ground.delta[1] to steer, the ...[0] to check the bar code
+if running == 1 then	### STEERING PART ###
+	capLeft=prox.ground.delta[1]
+	capRight=prox.ground.delta[0]
 	
-	if running == 1 then
-	
-	### STEERING PART ###
-	intensityDiff = prox.ground.delta[0]-525
+	intensityDiff = capLeft-525
 	#speed of robot is adjusted to keep around a gray mean value. If 
 	#difference is too important, the robot spins until it finds the line
 	#again. The steering is controled by the gray gradient of the trail.
-	if abs(intensityDiff) &lt; 170 then
+	if abs(intensityDiff) < 170 then
 		motor.left.target = 115+intensityDiff/8
 		motor.right.target = 115-intensityDiff/8
 	else
 		motor.left.target = intensityDiff/4
 		motor.right.target = -intensityDiff/4
-#edit to stop colours if line is lost
-		state = S_WAIT_SYNC
+	end
+	
+	if capRight < 900 or counter > 0 then
+		if  counter% slow == 0 then			
+			code[counter/slow] = capRight
+		end
+		counter ++
+		if  counter == 4*slow then
+			counter = 0			
+		end
 	end
 
 	
-end</node>
+end]]></node>
+
+
 </network>
