@@ -16,7 +16,7 @@ var counter = 0
 var state
 var intensityDiff
 var code[] = [0,0,0,0]
-var slow = 11
+var slow = 7
 
 var capLeft
 var capRight
@@ -46,7 +46,7 @@ if running == 1 then	### STEERING PART ###
 	capLeft=prox.ground.delta[0]
 	capRight=prox.ground.delta[1]
 	
-	intensityDiff = capLeft-525
+	intensityDiff = capRight-525
 	#speed of robot is adjusted to keep around a gray mean value. If 
 	#difference is too important, the robot spins until it finds the line
 	#again. The steering is controled by the gray gradient of the trail.
@@ -58,16 +58,28 @@ if running == 1 then	### STEERING PART ###
 		motor.right.target = intensityDiff/4
 	end
 	
-	if capRight < 900 or counter > 0 then
-		if  counter% slow == 0 then			
-			code[counter/slow] = capRight
+	
+	if capLeft < 880 or counter > 0 then
+		if  counter% slow == 0 then					
+			if  capLeft > 880 then
+				code[counter/slow] = 0				
+			end	
+			if  capLeft > 800 and capLeft < 880 then
+				code[counter/slow] = 1
+			end
+			if capLeft < 800  and capLeft >200 then
+				code[counter/slow] = 2		
+			end
+			if  capLeft <200 then
+				code[counter/slow] = 	3			
+			end				
 		end
 		counter ++
-		if  counter == 4*slow then
-			counter = 0			
-		end
 	end
 
+	if  counter == 4*slow then
+		counter = 0				
+	end
 	
 end]]></node>
 
