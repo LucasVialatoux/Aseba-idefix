@@ -43,22 +43,22 @@ onevent prox
 #if the robot is running, steering and bar code reading are activated
 #we use the prox.ground.delta[1] to steer, the ...[0] to check the bar code
 if running == 1 then	### STEERING PART ###
-	capLeft=prox.ground.delta[1]
-	capRight=prox.ground.delta[0]
+	capLeft=prox.ground.delta[0]
+	capRight=prox.ground.delta[1]
 	
-	intensityDiff = capRight-525
+	intensityDiff = capLeft-525
 	#speed of robot is adjusted to keep around a gray mean value. If 
 	#difference is too important, the robot spins until it finds the line
 	#again. The steering is controled by the gray gradient of the trail.
 	if abs(intensityDiff) < 170 then
-		motor.left.target = 115+intensityDiff/8
-		motor.right.target = 115-intensityDiff/8
+		motor.left.target = 115-intensityDiff/8
+		motor.right.target = 115+intensityDiff/8
 	else
-		motor.left.target = intensityDiff/4
-		motor.right.target = -intensityDiff/4
+		motor.left.target = -intensityDiff/4
+		motor.right.target = intensityDiff/4
 	end
 	
-	if capLeft < 900 or counter > 0 then
+	if capRight < 900 or counter > 0 then
 		if  counter% slow == 0 then			
 			code[counter/slow] = capRight
 		end
