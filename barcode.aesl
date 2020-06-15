@@ -15,8 +15,16 @@ var running = 0
 var counter = 0
 var state
 var intensityDiff
-var code[] = [0,0,0,0]
-var slow = 11
+var code[] = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
+var slow = 1
+var reset = 200
+var i
+var j
+var codeMoy[] = [0,0,0,0]
+var moy
+var nb = 0
+#0 noir 1 Gris 2 GrisClair 3 Blanc
+var finalCode[] = [0,0,0,0]
 
 var capLeft
 var capRight
@@ -43,8 +51,8 @@ onevent prox
 #if the robot is running, steering and bar code reading are activated
 #we use the prox.ground.delta[1] to steer, the ...[0] to check the bar code
 if running == 1 then	### STEERING PART ###
-	capLeft=prox.ground.delta[0]
-	capRight=prox.ground.delta[1]
+	capLeft=prox.ground.delta[1]
+	capRight=prox.ground.delta[0]
 	
 	intensityDiff = capLeft-525
 	#speed of robot is adjusted to keep around a gray mean value. If 
@@ -57,15 +65,47 @@ if running == 1 then	### STEERING PART ###
 		motor.left.target = -intensityDiff/4
 		motor.right.target = intensityDiff/4
 	end
-	
-	if capRight < 900 or counter > 0 then
-		if  counter% slow == 0 then			
-			code[counter/slow] = capRight
+	if reset == 0 then
+		if capRight < 905 or counter > 0 then
+			if  counter% slow == 0 then			
+				code[counter/slow] = capRight
+			end
+			counter ++
+			if  counter == 24*slow then
+				counter = 0
+				reset = 50
+				for i in 0:3 do
+					moy = 0
+					for j in 0:5 do
+						moy = moy + code[i*6+j]
+					end
+					moy = moy/6
+					codeMoy[nb] = moy				
+					if moy<910 and moy>800 then#GC
+						finalCode[nb] = 2
+						nb = nb + 1
+					elseif moy>910 then#BLANC
+						finalCode[nb] = 3
+						nb = nb + 1
+					elseif code[i]<800 and code[i]>500 then#G
+						finalCode[nb] = 1
+						nb = nb + 1
+					else#N
+						finalCode[nb] = 0
+						nb = nb + 1
+					end
+				end
+			end
 		end
-		counter ++
-		if  counter == 4*slow then
-			counter = 0			
+	elseif reset == 1 then
+		reset = reset - 1
+		nb = 0
+		code = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
+		for i in 0:3 do
+			finalCode[i] = 3
 		end
+	else
+		reset = reset - 1
 	end
 
 	
