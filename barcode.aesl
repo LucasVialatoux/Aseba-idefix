@@ -3,13 +3,13 @@
 
 
 <!--list of global events-->
-<event name="data" size="2"/>
-<event name="motors" size="2"/>
-<constant name="S_WAIT_SYNC" value="0"/>
+<event size="2" name="data"/>
+<event size="2" name="motors"/>
+<constant value="0" name="S_WAIT_SYNC"/>
 
 
-<!--node Tim sur DESKTOP-MOS07AQ - 9612-->
-<node nodeId="{26c7dbb6-9a56-45ee-b857-ad0d194b756b}" name="Tim sur DESKTOP-MOS07AQ - 9612"><![CDATA[
+<!--node Tim sur DESKTOP-F4559ND - 12816-->
+<node name="Tim sur DESKTOP-F4559ND - 12816" nodeId="{69a5dd2e-b18e-49d3-a13c-41b975684f51}"><![CDATA[
 ### VARIABLES DECLARATION ###
 var running = 0
 var counter = 0
@@ -46,7 +46,7 @@ if running == 1 then	### STEERING PART ###
 	capLeft=prox.ground.delta[1]
 	capRight=prox.ground.delta[0]
 	
-	intensityDiff = capLeft-525
+	intensityDiff = capRight-525
 	#speed of robot is adjusted to keep around a gray mean value. If 
 	#difference is too important, the robot spins until it finds the line
 	#again. The steering is controled by the gray gradient of the trail.
@@ -58,7 +58,7 @@ if running == 1 then	### STEERING PART ###
 		motor.right.target = -intensityDiff/4
 	end
 	
-	if capRight < 900 or counter > 0 then
+	if capLeft < 900 or counter > 0 then
 		if  counter% slow == 0 then			
 			code[counter/slow] = capRight
 		end
