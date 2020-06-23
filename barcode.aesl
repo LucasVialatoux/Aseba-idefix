@@ -8,8 +8,8 @@
 <constant value="0" name="S_WAIT_SYNC"/>
 
 
-<!--node Tim sur DESKTOP-F4559ND - 12816-->
-<node name="Tim sur DESKTOP-F4559ND - 12816" nodeId="{69a5dd2e-b18e-49d3-a13c-41b975684f51}"><![CDATA[
+<!--node Tim sur DESKTOP-F4559ND - 20876-->
+<node nodeId="{7e76d092-5e2b-4677-b348-7a44d896e7ee}" name="Tim sur DESKTOP-F4559ND - 20876"><![CDATA[
 ### VARIABLES DECLARATION ###
 var running = 0
 var counter = 0
@@ -21,35 +21,21 @@ var slow = 7
 var capLeft
 var capRight
 
-### EVENT BUTTON FORWARD ###
 onevent button.forward
-# starts line tracking and waits for sync bit
-if button.forward == 1 then
-	running = 1
-	state = S_WAIT_SYNC
-end
+	if button.forward == 1 then
+		running = 1
+		state = S_WAIT_SYNC
+	end
 
-### EVENT BUTTON CENTER ###
 onevent button.center
-#stops running and motors, turns LEDs off
-if  button.center == 1 then
-	running = 0
-	motor.left.target = 0
-	motor.right.target = 0
-end
+	if  button.center == 1 then
+		running = 0
+		motor.left.target = 0
+		motor.right.target = 0
+	end
 
-### EVENT PROXIMITY SENSORS (EVERY 100 ms => 10 Hz)###
-onevent prox
-#if the robot is running, steering and bar code reading are activated
-#we use the prox.ground.delta[1] to steer, the ...[0] to check the bar code
-if running == 1 then	### STEERING PART ###
-	capLeft=prox.ground.delta[0]
-	capRight=prox.ground.delta[1]
-	
+sub follow_track
 	intensityDiff = capRight-525
-	#speed of robot is adjusted to keep around a gray mean value. If 
-	#difference is too important, the robot spins until it finds the line
-	#again. The steering is controled by the gray gradient of the trail.
 	if abs(intensityDiff) < 170 then
 		motor.left.target = 115-intensityDiff/8
 		motor.right.target = 115+intensityDiff/8
@@ -58,16 +44,30 @@ if running == 1 then	### STEERING PART ###
 		motor.right.target = intensityDiff/4
 	end
 	
+onevent prox
+
+	capLeft=prox.ground.delta[0]
+	capRight=prox.ground.delta[1]
+	if running == 1 then	
+		callsub follow_track
+	else	
+		motor.left.target = 0
+		motor.right.target = 0
+	end	
+	#debug
+#	if capLeft < 880 then
+#		running = 2		
+#	end
 	
-	if capLeft < 880 or counter > 0 then
-		if  counter% slow == 0 then					
-			if  capLeft > 880 then
+	if capLeft < 800  or counter > 0 then
+		if  counter% slow == 4 then					
+			if  capLeft > 900 then
 				code[counter/slow] = 0				
 			end	
-			if  capLeft > 800 and capLeft < 880 then
+			if  capLeft > 700 and capLeft < 900 then
 				code[counter/slow] = 1
 			end
-			if capLeft < 800  and capLeft >200 then
+			if capLeft < 700  and capLeft >250 then
 				code[counter/slow] = 2		
 			end
 			if  capLeft <200 then
@@ -78,10 +78,10 @@ if running == 1 then	### STEERING PART ###
 	end
 
 	if  counter == 4*slow then
+		#lire le code
 		counter = 0				
 	end
-	
-end]]></node>
+	]]></node>
 
 
 </network>

@@ -1,0 +1,108 @@
+<!DOCTYPE aesl-source>
+<network>
+
+
+<!--list of global events-->
+<event size="2" name="data"/>
+<event size="2" name="motors"/>
+<constant name="BLACK" value="0"/>
+<constant name="S_READING" value="1"/>
+<constant name="S_WAIT_SYNC" value="0"/>
+<constant name="WHITE" value="1"/>
+
+
+<!--node Tim sur DESKTOP-F4559ND - 9616-->
+<node name="Tim sur DESKTOP-F4559ND - 9616" nodeId="{125c9ae1-1533-4251-b2e0-0bf80ce013eb}"><![CDATA[var status
+
+var interval
+var digit
+var digival
+var code
+var wordlen
+var valeur 
+var system
+var speed
+
+var p0
+var p1
+var state
+var counter
+var diff
+var color
+
+var grey
+var white
+var black
+var result
+
+
+#onevent startup
+onevent button.forward
+	if button.forward == 1 then
+		running = 1
+		state = S_WAIT_SYNC
+	end
+
+onevent button.center
+	if  button.center == 1 then
+		running = 0
+		motor.left.target = 0
+		motor.right.target = 0
+	end
+	interval = 5		
+	system = 4		
+	wordlen = 2		
+	grey=512
+
+sub use_result
+	# put your action here
+
+sub follow_the_track
+	p1 = prox.ground.delta[1]
+	
+	if abs(p1-525) < 170 then
+		motor.left.target = 115- (p1-525)/8
+		motor.right.target = 115+( p1-525)/8
+	else
+		motor.left.target = -(p1-525) /4
+		motor.right.target = (p1-525) /4
+	end
+
+onevent prox
+	if  running == 1 then		
+		callsub follow_the_track
+	end
+	
+	p0 = prox.ground.delta[0]	
+	if state == S_WAIT_SYNC then
+		if p0 < grey then
+			state = S_READING
+			counter = -interval / 2 
+			digit = BLACK
+			digival = 1
+			code = 0
+		end
+	else
+		counter++
+		if counter % interval == 0 then
+			if digit == BLACK then
+				black = p0	
+			elseif digit == WHITE then
+				white = p0
+				diff = white - black
+				grey= (white + black) / 2
+			elseif  digit < wordlen then
+				valeur = ((system -1) * (p0 - black) + diff / 2) / diff
+				code += valeur * digival
+				digival *= system
+			else
+				state = S_WAIT_SYNC
+				result = code
+				callsub use_result
+			end
+			digit++
+		end
+	end]]></node>
+
+
+</network>
